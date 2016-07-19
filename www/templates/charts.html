@@ -1,0 +1,9 @@
+<ion-view view-title="图表">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="chart in charts" ng-click="showChart(chart)" href="#/chart/{{chart.id}}">
+        {{chart.title}}
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

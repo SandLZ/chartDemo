@@ -1,0 +1,55 @@
+<script src="lib/chart/angular-chart.min.js"></script>
+<script src="lib/chart/Chart.min.js"></script>
+<script src="lib/chart/angular-chart.min.js"></script>
+<ion-view view-title="详情">
+  <ion-content>
+    <button class="button" ng-click="clickButton(1)">1月</button>
+    <button class="button" ng-click="clickButton(2)">2月</button>
+    <button class="button" ng-click="clickButton(3)">3月</button>
+    <button class="button" ng-click="clickButton(4)">4月</button>
+    <button class="button" ng-click="clickButton(5)">5月</button>
+    <button class="button" ng-click="clickButton(6)">6月</button>
+    <button class="button" ng-click="clickButton(7)">7月</button>
+    <button class="button" ng-click="clickButton(8)">8月</button>
+    <button class="button" ng-click="clickButton(9)">9月</button>
+    <button class="button" ng-click="clickButton(10)">10月</button>
+    <button class="button" ng-click="clickButton(11)">11月</button>
+    <button class="button" ng-click="clickButton(12)">12月</button>
+
+    <!--折线图 || 曲线图-->
+    <canvas ng-if="chartType == 1 || chartType == 2" id="line" class="chart chart-line" chart-data="chart.data"
+            chart-labels="chart.xLabels" chart-series="chart.series" chart-options="chart.options" chart-colors="chart.colors"
+            chart-dataset-override="chart.dataSet" chart-click="onClick">
+    </canvas>
+
+    <!--柱状图 && 横向柱状图-->
+    <canvas ng-if="chartType== 3" id="bar" class="chart chart-bar" chart-options="options" chart-colors="colors"
+            chart-data="data" chart-labels="labels" chart-series="series" chart-dataset-override="datasetOverride">
+    </canvas>
+
+    <canvas ng-if="chartType== 3" id="base" class="chart-horizontal-bar"  chart-colors="colors"
+    chart-options="options2"
+    chart-data="data"  chart-labels="labels" chart-series="series">
+    </canvas>
+
+    <!--雷达图-->
+    <canvas ng-if="chartType== 4" id="radar" class="chart chart-radar"
+            chart-data="data" chart-options="options" chart-labels="labels">
+    </canvas>
+
+    <!--极地区域图-->
+    <canvas ng-if="chartType== 5" id="polar-area" class="chart chart-polar-area"
+            chart-data="data" chart-labels="labels" chart-options="options">
+    </canvas>
+
+    <!--饼图-->
+    <canvas ng-if="chartType== 6" id="pie" class="chart chart-pie"
+            chart-data="data" chart-labels="labels" chart-options="options">
+    </canvas>
+
+    <!--环形图-->
+    <canvas ng-if="chartType== 7" id="doughnut" class="chart chart-doughnut"
+            chart-data="data" chart-labels="labels">
+    </canvas>
+  </ion-content>
+</ion-view>
