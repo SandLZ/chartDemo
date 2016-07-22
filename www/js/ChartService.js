@@ -31,23 +31,22 @@ angular.module('starter.services', ['chart.js'])
     };
 
     // 设置(半径)
-    function setDataHighLight(data,index,defaultColor,highColor) {
+    function setDataHighLight(data, index, defaultColor, highColor) {
       var tempData = [];
       var tempColor = [];
-      for(var i = 0;i < data[0].length;i++) {
-        if(i == index){
-          tempData.push(4);
-          tempColor.push(highColor);
-        }else {
+      for (var i = 0; i < data[0].length; i++) {
+        if (i == index) {
+          tempData.push(5);
+        } else {
           tempData.push(3);
-          tempColor.push(defaultColor);
         }
+        tempColor.push(highColor);
       }
-      var result = {data:tempData,color:tempColor};
+      var result = {data: tempData, color: tempColor};
       return result;
     }
 
-    function  initBrokenLine(chart) {
+    function initBrokenLine(chart) {
       // xLabels
       if (!chart.hasOwnProperty('xLabels')) {
         console.log('警告：（chartService）缺少xLabels！');
@@ -84,6 +83,8 @@ angular.module('starter.services', ['chart.js'])
     /****************** 解析方法 ******************/
 
     function paraseOptions(chartOptions, data) {
+      // scales
+
       // 曲线
       var isCurve = 0.4;
       if (chartOptions.hasOwnProperty('curve')) {
@@ -128,6 +129,8 @@ angular.module('starter.services', ['chart.js'])
         if (chartOptions.legend.hasOwnProperty('fontColor')) {
           legend.labels.fontColor = chartOptions.legend.fontColor;
         }
+      } else {
+        legend.display = false;
       }
       // tooltips
       var tooltips = {mode: ''};
@@ -145,6 +148,8 @@ angular.module('starter.services', ['chart.js'])
           showLines = false;
         }
       }
+      // scales
+
       // HighLight
       var highIndex = 0;
       if (chartOptions.hasOwnProperty('highLightIndex')) {
@@ -155,6 +160,14 @@ angular.module('starter.services', ['chart.js'])
       if (chartOptions.hasOwnProperty('drawDataOnLine')) {
         if (chartOptions.drawDataOnLine.hasOwnProperty('display')) {
           if (chartOptions.drawDataOnLine.display) {
+            var defaultColor = '#B0B0B0';// gray
+            var highLightColor = '#FFA54F';// yellow
+            if (chartOptions.drawDataOnLine.hasOwnProperty('labelDefaultColor')) {
+              defaultColor = chartOptions.drawDataOnLine.labelDefaultColor;
+            }
+            if (chartOptions.drawDataOnLine.hasOwnProperty('labelHighColor')) {
+              highLightColor = chartOptions.drawDataOnLine.labelHighColor;
+            }
             dataOnLine.animation = {
               onComplete: function () {
                 var chartInstance = this.chart;
@@ -163,23 +176,25 @@ angular.module('starter.services', ['chart.js'])
                 Chart.helpers.each(data.forEach(function (d, i) {
                   var meta = chartInstance.controller.getDatasetMeta(i);
                   Chart.helpers.each(meta.data.forEach(function (bar, index) {
-                    //// 颜色
+                    // 高亮
                     if (highIndex == index) {
-                      ctx.fillStyle = 'red';
-                    }else {
-                      ctx.fillStyle = '#ABABAB';
+                      ctx.font = "15px Arial";
+                      ctx.fillStyle = highLightColor;
+                    } else {
+                      ctx.font = "14px Arial";
+                      ctx.fillStyle = defaultColor;
                     }
                     // 计算出合适的位置 放置数据label
                     if (index == 0) {// 第一个放右边
-                      ctx.fillText(d[index], bar._model.x + 13, bar._model.y);
-                      //bar.fontColor = '#000';
-                    }else if (index == data.length-1) {// 最后一个放左边
-                      ctx.fillText(d[index], bar._model.x - 13, bar._model.y);
-                    }else {
-                      if (d[index] < d[index-1] && d[index+1] > d[index]) {// Bottom
-                        ctx.fillText(d[index], bar._model.x, bar._model.y + 12);
-                      }else {// Top
-                        ctx.fillText(d[index], bar._model.x , bar._model.y - 5);
+                      ctx.fillText(data[0][index], bar._model.x + 4, bar._model.y - 5);
+
+                    } else if (index == data[0].length - 1) {// 最后一个放左边
+                      ctx.fillText(data[0][index], bar._model.x - 5, bar._model.y - 8);
+                    } else {
+                      if (data[0][index] < data[0][index - 1] && data[0][index + 1] > data[0][index]) {// Bottom
+                        ctx.fillText(data[0][index], bar._model.x, bar._model.y + 15);
+                      } else {// Top
+                        ctx.fillText(data[0][index], bar._model.x, bar._model.y - 8);
                       }
                     }
                   }), this)
@@ -188,37 +203,73 @@ angular.module('starter.services', ['chart.js'])
             };
           }
         }
+        // scales
+        var scales = {};
+        var xAxes = [];
+        var yAxes = [];
+        if (chartOptions.hasOwnProperty('scales')) {
+          // x
+          if (chartOptions.scales.hasOwnProperty('xAxes')) {
+            var tempX = {};
+            if (chartOptions.scales.xAxes[0].hasOwnProperty('display')) {
+              tempX['display'] = chartOptions.scales.xAxes[0].display;
+            }else {
+              tempX['display'] = true;
+            }
+            if (tempX.display) {
+              if (chartOptions.scales.xAxes[0].hasOwnProperty('scaleLabel')) {
+                if (chartOptions.scales.xAxes[0].scaleLabel.hasOwnProperty('display')) {
+                  tempX['scaleLabel'] = {display:chartOptions.scales.xAxes[0].scaleLabel.display};
+                }else {
+                  tempX['scaleLabel'] = {display:true};
+                }
+              }
+              if (chartOptions.scales.xAxes[0].hasOwnProperty('gridLines')) {
+                if (chartOptions.scales.xAxes[0].gridLines.hasOwnProperty('display')) {
+                  tempX['gridLines'] = {display:chartOptions.scales.xAxes[0].gridLines.display};
+                }else {
+                  tempX['gridLines'] = {display:true};
+                }
+              }
+            }
+            xAxes.push(tempX);
+          }
+          // y
+          if (chartOptions.scales.hasOwnProperty('yAxes')) {
+            var yAxesArr = chartOptions.scales.yAxes;
+            for (var i in yAxesArr) {
+              var item = yAxesArr[i];
+              var tempItem = {};
+              if (item.hasOwnProperty('display')) {
+                tempItem['display'] = item.display;
+              }else {
+                tempItem['display'] = true;
+              }
+              if (tempItem.display) {
+                if (item.hasOwnProperty('id')) {
+                  tempItem['id'] = item.id;
+                }
+
+                if (item.hasOwnProperty('type')) {
+                  tempItem['type'] = item.type;
+                }
+                if (item.hasOwnProperty('position')) {
+                  tempItem['position'] = item.position;
+                }
+                if (item.hasOwnProperty('gridLines')) {
+                  if (item.gridLines.hasOwnProperty('display')) {
+                    tempItem['gridLines'] = {display:item.gridLines.display};
+                  }
+                }
+              }
+              yAxes.push(tempItem);
+            }
+          }
+        }
         chartOptions = {
           scales: {
-            xAxes: [{
-              display: true,
-              scaleLabel: {
-                display: false
-                //labelString: '月份'
-              },
-              gridLines: {
-                display: false
-              }
-            }],
-            yAxes: [
-              {
-                id: 'y-axis-1',
-                type: 'linear',
-                gridLines: {
-                  display: false
-                },
-                display: true,
-                position: 'left'
-              }, {
-                id: 'y-axis-2',
-                type: 'linear',
-                gridLines: {
-                  display: false
-                },
-                display: true,
-                position: 'right'
-              }
-            ]
+            xAxes: xAxes,
+            yAxes: yAxes
           },
           // 是否是曲线
           elements: {line: {tension: isCurve}},
@@ -241,4 +292,28 @@ angular.module('starter.services', ['chart.js'])
         return chartOptions;
       }
     }
+
+    function cloneObject(o, d) {
+      if (o === null || o === undefined || typeof ( o ) !== 'object') {
+        return o;
+      }
+      var deep = !!d;
+      var cloned;
+      if (o.constructor === Array) {
+        if (deep === false) {
+          return o;
+        }
+        cloned = [];
+        for (var i in o) {
+          cloned.push(cloneObject(o[i], deep));
+        }
+        return cloned;
+      }
+      cloned = {};
+      for (var i in o) {
+        cloned[i] = deep ? cloneObject(o[i], true) : o[i];
+      }
+      return cloned;
+    }
+
   });

@@ -20,7 +20,7 @@ angular.module('starter.controllers')
   //    responsive: true
   //  });
   //}])
-  .controller('ChartCtrl', function ($scope, $stateParams, ChartService) {
+  .controller('ChartCtrl', function ($scope, $stateParams, $timeout,ChartService,$ionicHistory,$filter) {
     $scope.title = "折线图";
     $scope.chartType = 1;
     $scope.options = {};
@@ -29,6 +29,37 @@ angular.module('starter.controllers')
       $scope.chartType = parseInt($stateParams.chartId);
     }
     checkChartType($scope.chartType);
+
+    $scope.showDatePicker = function () {
+      var options = {
+        date: $filter('date')(new Date(), 'yyyy-MM'),
+        mode: 'date',
+        locale: 'zh_CN',
+        //ios
+        cancelButtonLabel: '取消',
+        doneButtonLabel: '确定',
+        maxDate: new Date().getTime(),
+        //android
+        okText: '确定',
+        cancelText: '取消'
+      };
+
+      function onSuccess(date) {
+        console.log(('Selected date: ' + date));
+        $timeout(function () {
+          if (date == undefined) return;
+          $scope.enventTime = $filter('date')(date, 'yyyy-MM');
+          console.log($scope.enventTime);
+        });
+      }
+
+      function onError(error) { // Android only
+        console.log(('Error: ' + error));
+      }
+
+      datePicker.show(options, onSuccess, onError);
+    };
+
     // 判断chart类型
     function checkChartType(type) {
       console.log(type);
@@ -103,23 +134,32 @@ angular.module('starter.controllers')
         // 刻度
         scales: {
           xAxes: [{
-            display: false,
+            display: true,
             scaleLabel: {
-              display: true,
+              display: false,
               labelString: 'Month'
+            },
+            gridLines:{
+              display: false
             }
           }],
           yAxes: [
             {
               id: 'y-axis-1',
               type: 'linear',
-              display: false,
+              display: true,
+              gridLines:{
+                display: false
+              },
               position: 'left'
             },
             {
               id: 'y-axis-2',
               type: 'linear',
-              display: false,
+              display: true,
+              gridLines:{
+                display: false
+              },
               position: 'right'
             }
           ]
@@ -173,6 +213,9 @@ angular.module('starter.controllers')
     }
 
     $scope.clickButton = function (index) {
+      if (index == 0) {
+        $ionicHistory.goBack();
+      }
       $scope.highLight = index -1;
       initChart();
       var tempData = ChartService.setDataHighLight($scope.chart.data,$scope.highLight,'#2E8B57','red');
